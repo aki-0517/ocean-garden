@@ -71,8 +71,11 @@ function ProjectCard({ project, onClick }: ProjectCardProps) {
       whileHover={{ y: -5, scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className={`flex-shrink-0 w-64 bg-white rounded-xl shadow-md overflow-hidden mr-4 cursor-pointer transition-all duration-300 border-2`}
-      style={{ borderColor: isCompleted ? project.accentColor : "transparent" }}
+      className={`flex-shrink-0 w-64 rounded-xl shadow-md overflow-hidden mr-4 cursor-pointer transition-all duration-300 border-2`}
+      style={{ 
+        borderColor: isCompleted ? project.accentColor : "transparent",
+        backgroundColor: `${project.accentColor}30`
+      }}
     >
       <div className="p-6">
         <div className="flex items-center mb-4">

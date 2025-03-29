@@ -31,7 +31,7 @@ const sampleProjects: Project[] = [
       id: "bluefin",
       name: "Bluefin",
       image: "/logos/bluefin.webp",
-      position: { x: 150, y: 150 },
+      position: { x: 250, y: 50 },
       level: 2,
       maxLevel: 5,
       icon: "/animals/blufin1.png",
@@ -51,7 +51,7 @@ const sampleProjects: Project[] = [
       id: "walrus",
       name: "Walrus",
       image: "/logos/walrus.png",
-      position: { x: 300, y: 200 },
+      position: { x: 400, y: 100 },
       level: 1,
       maxLevel: 5,
       icon: "/animals/walrus2.png",
@@ -71,7 +71,7 @@ const sampleProjects: Project[] = [
       id: "cetus",
       name: "Cetus",
       image: "/logos/cetus.webp",
-      position: { x: 450, y: 150 },
+      position: { x: 550, y: 50 },
       level: 4,
       maxLevel: 5,
       icon: "/animals/cetus1.png",
@@ -91,7 +91,7 @@ const sampleProjects: Project[] = [
       id: "haedal",
       name: "Haedal",
       image: "/logos/haedal.webp",
-      position: { x: 600, y: 250 },
+      position: { x: 700, y: 150 },
       level: 2,
       maxLevel: 5,
       icon: "/animals/haedal1.png",
@@ -111,7 +111,7 @@ const sampleProjects: Project[] = [
       id: "scallop",
       name: "Scallop",
       image: "/logos/scallop.webp",
-      position: { x: 200, y: 300 },
+      position: { x: 300, y: 200 },
       level: 1,
       maxLevel: 5,
       icon: "/animals/scallop1.png",
@@ -214,15 +214,15 @@ export default function Home() {
 
   return (
     <DndProvider backend={dndBackend}>
-      <div className="relative flex flex-col h-screen bg-gradient-to-b from-blue-50 to-blue-100">
+      <div className="relative flex flex-col h-screen bg-gradient-to-b from-blue-800 to-blue-100">
         {/* 右上にウォレット情報を表示 */}
-        <div className="absolute top-4 right-4 bg-white p-4 rounded shadow-lg z-50">
+        <div className="absolute top-4 right-4 p-4 rounded shadow-lg z-50">
           <ConnectButton connectText="Connect Wallet" />
         </div>
 
         {/* 水槽エリアを枠付きで可愛くラップ */}
         <div className="flex-grow h-4/5 relative p-4">
-          <div className="h-full border-4 border-blue-300 rounded-2xl shadow-inner bg-white">
+          <div className="h-full border-4 border-blue-500 rounded-2xl shadow-inner bg-white">
             <AquariumView projects={projects} onAnimalMove={handleAnimalMove} />
           </div>
           {/* 水槽の右下に Send Transaction ボタンを配置（デザイン変更済み） */}
