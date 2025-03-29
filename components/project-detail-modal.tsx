@@ -27,10 +27,16 @@ export default function ProjectDetailModal({ project, onClose }: ProjectDetailMo
   const nextLevel = Math.min(project.level + 1, project.maxLevel)
   const isMaxLevel = project.level === project.maxLevel
 
-  // Calculate size for current and next level
+  // Calculate size for current and next level preview (icon表示時)
   const baseSize = 80
   const currentSize = baseSize * (1 + project.level * 0.15)
   const nextSize = baseSize * (1 + nextLevel * 0.15)
+
+  // 閾値(tx必要数)の算出関数
+  const calcRequiredTx = (level: number) => {
+    // シンプルな例：最大tx数を最大レベルで割った割合
+    return Math.ceil((project.targetTransactions * level) / project.maxLevel)
+  }
 
   return (
     <AnimatePresence>
@@ -105,100 +111,113 @@ export default function ProjectDetailModal({ project, onClose }: ProjectDetailMo
             {/* Growth preview section */}
             <div className="bg-gray-50 rounded-xl p-4 mb-6">
               <h3 className="font-medium text-gray-700 mb-3">Growth Preview</h3>
-
-              <div className="flex items-center justify-center">
-                {/* Current level */}
-                <div className="flex flex-col items-center">
-                  <div
-                    className="relative rounded-full flex items-center justify-center mb-2"
-                    style={{
-                      width: currentSize,
-                      height: currentSize,
-                      backgroundColor: `${project.accentColor}20`,
-                    }}
-                  >
-                    <motion.img
-                      src={project.themeAnimal.image}
-                      alt={project.themeAnimal.name}
-                      className="w-3/4 h-3/4 object-contain"
-                      animate={{
-                        y: [0, -5, 0],
-                      }}
-                      transition={{
-                        repeat: Number.POSITIVE_INFINITY,
-                        duration: 3,
-                        ease: "easeInOut",
-                      }}
-                    />
+              {showPreview ? (
+                // リスト表示: 各レベルに必要なtx数を表示
+                <div className="overflow-y-auto max-h-60">
+                  <ul className="divide-y divide-gray-200">
+                    {Array.from({ length: project.maxLevel }, (_, i) => {
+                      const level = i + 1
+                      return (
+                        <li key={level} className="py-2 flex justify-between">
+                          <span>Level {level}</span>
+                          <span>{calcRequiredTx(level)} Transactions</span>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </div>
+              ) : (
+                // 従来のアイコン表示
+                <div className="flex items-center justify-center">
+                  {/* Current level */}
+                  <div className="flex flex-col items-center">
                     <div
-                      className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-white flex items-center justify-center text-xs font-bold shadow-sm"
-                      style={{ color: project.accentColor, border: `2px solid ${project.accentColor}` }}
+                      className="relative rounded-full flex items-center justify-center mb-2"
+                      style={{
+                        width: currentSize,
+                        height: currentSize,
+                        backgroundColor: `${project.accentColor}20`,
+                      }}
                     >
-                      {project.level}
+                      <motion.img
+                        src={project.themeAnimal.icon}
+                        alt={project.themeAnimal.name}
+                        className="w-3/4 h-3/4 object-contain"
+                        animate={{
+                          y: [0, -5, 0],
+                        }}
+                        transition={{
+                          repeat: Number.POSITIVE_INFINITY,
+                          duration: 3,
+                          ease: "easeInOut",
+                        }}
+                      />
+                      <div
+                        className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-white flex items-center justify-center text-xs font-bold shadow-sm"
+                        style={{ color: project.accentColor, border: `2px solid ${project.accentColor}` }}
+                      >
+                        {project.level}
+                      </div>
                     </div>
+                    <span className="text-sm text-gray-600">Current</span>
                   </div>
-                  <span className="text-sm text-gray-600">Current</span>
-                </div>
 
-                {/* Arrow */}
-                <ChevronRight className="mx-4 text-gray-400" />
+                  {/* Arrow */}
+                  <ChevronRight className="mx-4 text-gray-400" />
 
-                {/* Next level */}
-                <div className="flex flex-col items-center">
-                  {isMaxLevel ? (
-                    <div className="flex flex-col items-center">
-                      <div
-                        className="relative rounded-full flex items-center justify-center mb-2 border-2 border-dashed"
-                        style={{
-                          width: currentSize,
-                          height: currentSize,
-                          borderColor: project.accentColor,
-                        }}
-                      >
-                        <Award className="w-1/2 h-1/2" style={{ color: project.accentColor }} />
-                      </div>
-                      <span className="text-sm text-gray-600">Max Level</span>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center">
-                      <div
-                        className={`relative rounded-full flex items-center justify-center mb-2 ${showPreview ? "bg-opacity-50" : "bg-opacity-10"} transition-all duration-500`}
-                        style={{
-                          width: nextSize,
-                          height: nextSize,
-                          backgroundColor: `${project.accentColor}${showPreview ? "40" : "10"}`,
-                        }}
-                      >
-                        <motion.img
-                          src={project.themeAnimal.image}
-                          alt={project.themeAnimal.name}
-                          className={`w-3/4 h-3/4 object-contain transition-opacity duration-500 ${showPreview ? "opacity-100" : "opacity-30"}`}
-                          animate={
-                            showPreview
-                              ? {
-                                  y: [0, -5, 0],
-                                  scale: [1, 1.05, 1],
-                                }
-                              : {}
-                          }
-                          transition={{
-                            repeat: Number.POSITIVE_INFINITY,
-                            duration: 3,
-                            ease: "easeInOut",
-                          }}
-                        />
+                  {/* Next level */}
+                  <div className="flex flex-col items-center">
+                    {isMaxLevel ? (
+                      <div className="flex flex-col items-center">
                         <div
-                          className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-white flex items-center justify-center text-xs font-bold shadow-sm"
-                          style={{ color: project.accentColor, border: `2px solid ${project.accentColor}` }}
+                          className="relative rounded-full flex items-center justify-center mb-2 border-2 border-dashed"
+                          style={{
+                            width: currentSize,
+                            height: currentSize,
+                            borderColor: project.accentColor,
+                          }}
                         >
-                          {nextLevel}
+                          <Award className="w-1/2 h-1/2" style={{ color: project.accentColor }} />
                         </div>
+                        <span className="text-sm text-gray-600">Max Level</span>
                       </div>
-                      <span className="text-sm text-gray-600">Next Level</span>
-                    </div>
-                  )}
+                    ) : (
+                      <div className="flex flex-col items-center">
+                        <div
+                          className={`relative rounded-full flex items-center justify-center mb-2 transition-all duration-500`}
+                          style={{
+                            width: nextSize,
+                            height: nextSize,
+                            backgroundColor: `${project.accentColor}10`,
+                          }}
+                        >
+                          <motion.img
+                            src={project.themeAnimal.icon2}
+                            alt={project.themeAnimal.name}
+                            className="w-3/4 h-3/4 object-contain transition-opacity duration-500 opacity-30"
+                            animate={{
+                              y: [0, -5, 0],
+                              scale: [1, 1.05, 1],
+                            }}
+                            transition={{
+                              repeat: Number.POSITIVE_INFINITY,
+                              duration: 3,
+                              ease: "easeInOut",
+                            }}
+                          />
+                          <div
+                            className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-white flex items-center justify-center text-xs font-bold shadow-sm"
+                            style={{ color: project.accentColor, border: `2px solid ${project.accentColor}` }}
+                          >
+                            {nextLevel}
+                          </div>
+                        </div>
+                        <span className="text-sm text-gray-600">Next Level</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Action buttons */}
@@ -216,7 +235,7 @@ export default function ProjectDetailModal({ project, onClose }: ProjectDetailMo
                   style={{ backgroundColor: project.accentColor }}
                   onClick={() => setShowPreview(!showPreview)}
                 >
-                  {showPreview ? "Hide Growth" : "Show Growth"}
+                  {showPreview ? "Hide Quest" : "Show Quest"}
                 </button>
               )}
             </div>
@@ -226,4 +245,3 @@ export default function ProjectDetailModal({ project, onClose }: ProjectDetailMo
     </AnimatePresence>
   )
 }
-

@@ -10,31 +10,30 @@ interface DraggableAnimalProps {
 }
 
 export default function DraggableAnimal({ animal, accentColor }: DraggableAnimalProps) {
-  // Set up drag functionality
   const [{ isDragging }, drag] = useDrag({
     type: "animal",
-    item: {
+    item: () => ({
       id: animal.id,
       position: animal.position,
       image: animal.image,
       name: animal.name,
-    },
+    }),
     collect: (monitor) => ({
-      isDragging: !!monitor.isDragging(),
+      isDragging: monitor.isDragging(),
     }),
   })
 
-  // Calculate size based on level
   const baseSize = 60
   const sizeMultiplier = 1 + animal.level * 0.15
-  const size = baseSize * sizeMultiplier
+  const size = baseSize * sizeMultiplier * 2
 
-  // Calculate glow intensity based on level
   const glowOpacity = 0.2 + animal.level * 0.15
 
   return (
     <motion.div
-      ref={drag}
+    ref={(node: HTMLDivElement | null) => {
+      if (node) drag(node)
+    }}
       style={{
         left: animal.position.x,
         top: animal.position.y,
@@ -49,7 +48,7 @@ export default function DraggableAnimal({ animal, accentColor }: DraggableAnimal
       transition={{ duration: 0.5 }}
       whileHover={{ scale: 1.05 }}
     >
-      {/* Level indicator */}
+      {/* レベル表示バッジ */}
       <div
         className="absolute -top-2 -right-2 rounded-full flex items-center justify-center text-xs font-bold text-white z-10"
         style={{
@@ -62,7 +61,7 @@ export default function DraggableAnimal({ animal, accentColor }: DraggableAnimal
         {animal.level}
       </div>
 
-      {/* Glow effect based on level */}
+      {/* グローエフェクト */}
       <div
         className="absolute inset-0 rounded-full blur-md -z-10"
         style={{
@@ -71,9 +70,8 @@ export default function DraggableAnimal({ animal, accentColor }: DraggableAnimal
         }}
       />
 
-      {/* Animal image */}
       <motion.img
-        src={animal.image}
+        src={animal.icon}
         alt={animal.name}
         className="w-full h-full object-contain"
         animate={{
@@ -86,7 +84,6 @@ export default function DraggableAnimal({ animal, accentColor }: DraggableAnimal
         }}
       />
 
-      {/* Progress indicator */}
       <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-full max-w-[80%]">
         <div className="h-1.5 bg-white bg-opacity-30 rounded-full overflow-hidden">
           <div
@@ -101,4 +98,3 @@ export default function DraggableAnimal({ animal, accentColor }: DraggableAnimal
     </motion.div>
   )
 }
-

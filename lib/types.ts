@@ -4,6 +4,8 @@ export interface Position {
 }
 
 export interface ThemeAnimal {
+  icon: any
+  icon2: any
   id: string
   name: string
   image: string

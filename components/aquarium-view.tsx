@@ -11,19 +11,6 @@ interface AquariumViewProps {
   onAnimalMove: (animalId: string, position: { x: number; y: number }) => void
 }
 
-// Ocean decoration elements
-const decorations = [
-  { id: "seaweed1", type: "seaweed", x: "10%", y: "70%", scale: 1.2, rotation: 5 },
-  { id: "seaweed2", type: "seaweed", x: "25%", y: "85%", scale: 0.9, rotation: -8 },
-  { id: "seaweed3", type: "seaweed", x: "85%", y: "75%", scale: 1.1, rotation: 10 },
-  { id: "coral1", type: "coral", x: "15%", y: "90%", scale: 1, rotation: 0 },
-  { id: "coral2", type: "coral", x: "70%", y: "85%", scale: 1.2, rotation: 0 },
-  { id: "starfish1", type: "starfish", x: "40%", y: "95%", scale: 0.8, rotation: 15 },
-  { id: "starfish2", type: "starfish", x: "60%", y: "92%", scale: 0.7, rotation: -20 },
-  { id: "shell1", type: "shell", x: "30%", y: "95%", scale: 0.6, rotation: 0 },
-  { id: "shell2", type: "shell", x: "80%", y: "93%", scale: 0.5, rotation: 25 },
-]
-
 // Bubble animation component
 const Bubbles = () => {
   return (
@@ -61,80 +48,34 @@ const Bubbles = () => {
   )
 }
 
-// Decoration component
-const Decoration = ({
-  type,
-  x,
-  y,
-  scale,
-  rotation,
-}: {
-  type: string
-  x: string
-  y: string
-  scale: number
-  rotation: number
-}) => {
-  let imagePath = ""
-
-  switch (type) {
-    case "seaweed":
-      imagePath = "/decorations/seaweed.svg"
-      break
-    case "coral":
-      imagePath = "/decorations/coral.svg"
-      break
-    case "starfish":
-      imagePath = "/decorations/starfish.svg"
-      break
-    case "shell":
-      imagePath = "/decorations/shell.svg"
-      break
-    default:
-      imagePath = "/decorations/seaweed.svg"
-  }
-
-  return (
-    <motion.div
-      className="absolute pointer-events-none"
-      style={{
-        left: x,
-        bottom: y,
-        transform: `scale(${scale}) rotate(${rotation}deg)`,
-      }}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 1, delay: Math.random() }}
-    >
-      <img src={imagePath || "/placeholder.svg"} alt={type} className="w-16 h-16 object-contain" />
-    </motion.div>
-  )
-}
-
 export default function AquariumView({ projects, onAnimalMove }: AquariumViewProps) {
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 })
   const [containerRef, setContainerRef] = useState<HTMLDivElement | null>(null)
 
-  // Set up drop target for the aquarium
   const [, drop] = useDrop({
     accept: "animal",
     drop: (item: any, monitor) => {
-      const delta = monitor.getDifferenceFromInitialOffset()
-      if (!delta) return
+      const clientOffset = monitor.getSourceClientOffset()
+      if (!clientOffset || !containerRef) return
 
-      const left = Math.round(item.position.x + delta.x)
-      const top = Math.round(item.position.y + delta.y)
+      const containerRect = containerRef.getBoundingClientRect()
 
-      // Ensure the animal stays within bounds
-      const boundedLeft = Math.max(0, Math.min(containerSize.width - 100, left))
-      const boundedTop = Math.max(0, Math.min(containerSize.height - 100, top))
+      const halfSize = 50 // 仮に画像が 100px 四方程度だと想定
 
-      onAnimalMove(item.id, { x: boundedLeft, y: boundedTop })
-      return undefined
+      // コンテナ基準の座標を算出
+      let left = clientOffset.x - containerRect.left - halfSize
+      let top = clientOffset.y - containerRect.top - halfSize
+
+      // コンテナ内に収まるようにクリッピング
+      left = Math.max(0, Math.min(containerSize.width - 100, left))
+      top = Math.max(0, Math.min(containerSize.height - 100, top))
+
+      // 新しい座標を親へ通知
+      onAnimalMove(item.id, { x: left, y: top })
     },
   })
 
-  // Update container size on resize
+  // コンテナサイズの取得＆監視
   useEffect(() => {
     if (!containerRef) return
 
@@ -147,41 +88,40 @@ export default function AquariumView({ projects, onAnimalMove }: AquariumViewPro
 
     updateSize()
     window.addEventListener("resize", updateSize)
-
     return () => {
       window.removeEventListener("resize", updateSize)
     }
   }, [containerRef])
 
-  // Set container ref and drop ref
+  // ref と drop をまとめて設定
   const setRefs = (el: HTMLDivElement) => {
     setContainerRef(el)
     drop(el)
   }
 
   return (
-    <div ref={setRefs} className="relative w-full h-full overflow-hidden bg-gradient-to-b from-blue-300 to-blue-500">
-      {/* Ocean background with parallax effect */}
-      <div className="absolute inset-0 bg-[url('/background/ocean-bg.svg')] bg-cover bg-center opacity-20" />
-
-      {/* Decorations */}
-      {decorations.map((decoration) => (
-        <Decoration
-          key={decoration.id}
-          type={decoration.type}
-          x={decoration.x}
-          y={decoration.y}
-          scale={decoration.scale}
-          rotation={decoration.rotation}
-        />
-      ))}
+    <div
+      ref={setRefs}
+      className="relative w-full h-full overflow-hidden"
+      style={{
+        backgroundImage: "url('/background/bg-ocean.svg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      {/* Ocean background (追加の背景) */}
+      <div className="absolute inset-0 bg-[url('/background/bg-ocean.png')] bg-cover bg-center" />
 
       {/* Bubbles animation */}
       <Bubbles />
 
       {/* Draggable animals */}
       {projects.map((project) => (
-        <DraggableAnimal key={project.id} animal={project.themeAnimal} accentColor={project.accentColor} />
+        <DraggableAnimal
+          key={project.id}
+          animal={project.themeAnimal}
+          accentColor={project.accentColor}
+        />
       ))}
 
       {/* Light rays effect */}
@@ -189,4 +129,3 @@ export default function AquariumView({ projects, onAnimalMove }: AquariumViewPro
     </div>
   )
 }
-

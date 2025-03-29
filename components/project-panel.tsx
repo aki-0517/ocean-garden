@@ -27,8 +27,6 @@ export default function ProjectPanel({ projects, onSelectProject }: ProjectPanel
 
   return (
     <div className="relative h-full py-3 px-4">
-      <h2 className="text-lg font-semibold text-gray-800 mb-2">DeFi Projects</h2>
-
       <div className="relative">
         {/* Scroll buttons */}
         <button
@@ -73,19 +71,19 @@ function ProjectCard({ project, onClick }: ProjectCardProps) {
       whileHover={{ y: -5, scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className={`flex-shrink-0 w-48 bg-white rounded-xl shadow-md overflow-hidden mr-4 cursor-pointer transition-all duration-300 border-2`}
+      className={`flex-shrink-0 w-64 bg-white rounded-xl shadow-md overflow-hidden mr-4 cursor-pointer transition-all duration-300 border-2`}
       style={{ borderColor: isCompleted ? project.accentColor : "transparent" }}
     >
-      <div className="p-4">
-        <div className="flex items-center mb-3">
+      <div className="p-6">
+        <div className="flex items-center mb-4">
           <div
-            className="w-10 h-10 rounded-full flex items-center justify-center mr-3"
+            className="w-14 h-14 rounded-full flex items-center justify-center mr-4"
             style={{ backgroundColor: `${project.accentColor}20` }}
           >
             <img
               src={project.themeAnimal.image || "/placeholder.svg"}
               alt={project.themeAnimal.name}
-              className="w-6 h-6 object-contain"
+              className="w-8 h-8 object-contain"
             />
           </div>
           <div>
