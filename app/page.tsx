@@ -206,7 +206,9 @@ export default function Home() {
           <p className="text-gray-600 text-center mb-6">
             Please connect your wallet to continue.
           </p>
-          <ConnectButton connectText="Connect Wallet" />
+          <div className="flex justify-center">
+            <ConnectButton connectText="Connect Wallet" />
+          </div>
         </div>
       </div>
     )
